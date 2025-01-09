@@ -36,6 +36,7 @@
                 :id="`${question.id}-${choiceIndex}`"
                 :name="`${question.id}`"
                 :value="choiceIndex"
+                required
               />
               <label
                 class="w-full overflow-x-auto"
@@ -63,6 +64,7 @@
                   :id="`reason-${question.id}-${choiceIndex}`"
                   :name="`reason-${question.id}`"
                   :value="choiceIndex"
+                  required
                 />
                 <label
                   class="w-full overflow-x-auto flex items-start gap-2"
