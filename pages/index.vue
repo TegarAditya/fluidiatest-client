@@ -19,7 +19,6 @@
         <template #subtitle>
           <div class="font-semibold">
             <p class="text-sm">Durasi: {{ formatDuration(Number(test?.duration)) }}</p>
-            <p class="text-sm">Jumlah: {{ test?.questions.length }} Soal</p>
           </div>
         </template>
         <template #content>
