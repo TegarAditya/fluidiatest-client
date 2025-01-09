@@ -1,7 +1,11 @@
 <template>
   <div class="w-screen">
     <div class="flex justify-center items-center w-full min-h-[100dvh]">
-      <Card class="max-w-md mx-2 overflow-hidden" v-if="test" v-motion-pop-visible-once>
+      <Card
+        class="max-w-md mx-2 overflow-hidden"
+        v-if="test?.id"
+        v-motion-pop-visible-once
+      >
         <template #header>
           <div class="h-56 w-full aspect-video">
             <img
@@ -18,7 +22,9 @@
         </template>
         <template #subtitle>
           <div class="font-semibold">
-            <p class="text-sm">Durasi: {{ formatDuration(Number(test?.duration)) }}</p>
+            <p class="text-sm">
+              Durasi: {{ formatDuration(Number(test?.duration)) }}
+            </p>
           </div>
         </template>
         <template #content>
@@ -37,6 +43,9 @@
           </div>
         </template>
       </Card>
+      <div v-else>
+        <p class="text-2xl">Unauthorized</p>
+      </div>
     </div>
   </div>
 </template>
@@ -49,12 +58,18 @@ const config = useRuntimeConfig()
 const testId = route.query.test_id as string
 const userId = route.query.user as string
 
-const test = computed(() => testStore.tests)
+const test = computed(() => testStore.test)
 
 const fetchTest = async () => {
   const data = await fetch(`${config.public.apiBaseUrl}/api/test/${testId}`)
   return await data.json()
 }
+
+onMounted(async () => {
+  if (testId) {
+    testStore.setTest(await fetchTest())
+  }
+})
 </script>
 
 <style></style>
