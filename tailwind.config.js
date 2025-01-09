@@ -11,5 +11,5 @@ export default {
       },
     },
   },
-  plugins: [require('tailwindcss-primeui')],
-};
+  plugins: [require('@tailwindcss/typography'), require('tailwindcss-primeui')],
+}

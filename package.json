@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@primevue/nuxt-module": "^4.2.5",
+    "@tailwindcss/typography": "^0.5.16",
     "postcss-import": "^16.1.0"
   }
 }
