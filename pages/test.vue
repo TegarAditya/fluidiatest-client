@@ -1,8 +1,10 @@
 <template>
-  <div class="relative min-h-[100dvh] w-screen bg-blue-100">
+  <div class="relative min-h-[100dvh] w-screen bg-blue-100 select-none">
     <div class="sticky top-0 w-full h-16 bg-blue-400">
       <div class="flex justify-center items-center h-full">
-        <h1 class="text-white font-space_grotesk text-lg font-semibold">{{ test?.code }}</h1>
+        <h1 class="text-white font-space_grotesk text-lg font-semibold">
+          {{ test?.code }}
+        </h1>
       </div>
     </div>
     <div class="px-5 flex flex-col gap-7 py-10">
@@ -24,10 +26,10 @@
             ></div>
           </template>
         </Card>
-        <Panel header="Pilih jawabanmu" class="rounded-xl">
+        <Panel header="Pilih jawabanmu" class="rounded-xl" toggleable>
           <div class="grid grid-cols-1 gap-2">
             <div
-              class="flex items-center gap-2 p-2 border rounded-xl bg-white"
+              class="flex items-start gap-2 p-2 border rounded-xl bg-white"
               v-for="(choice, choiceIndex) in question.options"
               :key="choiceIndex"
             >
@@ -36,13 +38,18 @@
                 :id="`${question.id}-${choiceIndex}`"
                 :name="`${question.id}`"
                 :value="choiceIndex"
+                class="mt-2"
                 required
               />
               <label
-                class="w-full overflow-x-auto"
+                class="w-full overflow-x-auto flex items-start gap-2"
                 :for="`${question.id}-${choiceIndex}`"
-                v-html="choice.option"
-              />
+              >
+                <div>
+                  <span>{{ choice.label }}.</span>
+                </div>
+                <div v-html="choice.option"></div>
+              </label>
             </div>
           </div>
         </Panel>
@@ -55,7 +62,7 @@
           >
             <div class="grid grid-cols-1 gap-2">
               <div
-                class="flex items-start gap-2 p-2 border rounded-xl bg-white"
+                class="flex items-start gap-2 p-2 border rounded-xl bg-white h-full"
                 v-for="(choice, choiceIndex) in question.reasons"
                 :key="choiceIndex"
               >
@@ -64,6 +71,7 @@
                   :id="`reason-${question.id}-${choiceIndex}`"
                   :name="`reason-${question.id}`"
                   :value="choiceIndex"
+                  class="mt-2"
                   required
                 />
                 <label
@@ -81,7 +89,9 @@
         </div>
       </div>
     </div>
-    <div class="sticky bottom-0 w-full h-16 bg-blue-400 shadow-lg z-10 border-t">
+    <div
+      class="sticky bottom-0 w-full h-16 bg-blue-400 shadow-lg z-10 border-t"
+    >
       <div class="flex justify-center items-center gap-5 h-full">
         <Button
           label="<<"
@@ -90,6 +100,15 @@
           @click="prevQuestion"
           :disabled="questionIndex === 0"
         />
+        <Button severity="secondary" rounded v-show="!isLastQuestion">
+          <span>{{ questionIndex + 1 }} / {{ test?.questions.length }}</span>
+        </Button>
+        <Button
+          label="Selesai"
+          severity="danger"
+          rounded
+          v-show="isLastQuestion"
+        />
         <Button
           label=">>"
           severity="secondary"
@@ -97,7 +116,6 @@
           @click="nextQuestion"
           :disabled="questionIndex === Number(test?.questions.length) - 1"
         />
-        <Button label="Selesai" severity="secondary" rounded v-show="questionIndex === Number(test?.questions.length) - 1"/>
       </div>
     </div>
   </div>
@@ -108,6 +126,10 @@ const questionIndex = ref(0)
 const testStore = useTestStore()
 
 const test = computed(() => testStore.test)
+
+const isLastQuestion = computed(
+  () => questionIndex.value === (test.value?.questions.length ?? 0) - 1,
+)
 
 function nextQuestion() {
   questionIndex.value++

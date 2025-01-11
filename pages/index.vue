@@ -31,8 +31,7 @@
           </template>
           <template #content>
             <div class="border rounded-md p-4 bg-gray-100">
-              <p class="font-semibold">Petunjuk:</p>
-              <p class="text-sm">{{ test?.description }}</p>
+              <div class="text-sm prose" v-html="test?.description"></div>
             </div>
           </template>
           <template #footer>
