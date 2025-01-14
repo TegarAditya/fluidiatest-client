@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-[100dvh] w-full bg-blue-100 select-none">
+  <div class="relative min-h-[100dvh] w-full bg-blue-100 select-none scroll-smooth">
     <ClientOnly>
       <div class="sticky top-0 w-full h-16 z-20 bg-blue-400">
         <div class="flex justify-between items-center h-full">
@@ -140,11 +140,11 @@
       >
         <template #header>
           <div class="flex items-center gap-2">
-            <span class="font-bold">Amy Elsner</span>
+            <span class="font-bold">Daftar Nomor Soal</span>
           </div>
         </template>
         <div class="w-full">
-          <div class="grid grid-cols-5 gap-5">
+          <div class="grid grid-cols-5 gap-5 pb-5">
             <div v-for="(question, index) in test?.questions" :key="index">
               <Button
                 :label="String(index + 1)"
@@ -154,7 +154,7 @@
                   'bg-white text-blue-400': index !== questionIndex,
                 }"
                 @click="
-                  questionIndex = index,
+                  navigateQuestion(index),
                   visibleNavigation = false
                 "
               />
@@ -192,12 +192,17 @@ const isLastQuestion = computed(
 
 function nextQuestion() {
   questionIndex.value++
-  y.value = 0
+  window.scrollTo(0, 0)
 }
 
 function prevQuestion() {
   questionIndex.value--
-  y.value = 0
+  window.scrollTo(0, 0)
+}
+
+function navigateQuestion(index: number) {
+  questionIndex.value = index
+  window.scrollTo(0, 0)
 }
 
 onMounted(async () => {
