@@ -1,13 +1,15 @@
 <template>
   <div class="relative min-h-[100dvh] w-screen bg-blue-100 select-none">
-    <div class="sticky top-0 w-full h-16 bg-blue-400">
+    <div class="sticky top-0 w-full h-16 z-20 bg-blue-400">
       <div class="flex justify-center items-center h-full">
-        <h1 class="text-white font-space_grotesk text-lg font-semibold">
-          {{ test?.code }}
-        </h1>
+        <ClientOnly>
+          <h1 class="text-white font-space_grotesk text-lg font-semibold">
+            {{ remaingTime }}
+          </h1>
+        </ClientOnly>
       </div>
     </div>
-    <div class="px-5 flex flex-col gap-7 py-10">
+    <div ref="el" class="px-5 flex flex-col gap-7 py-10">
       <div
         class="flex flex-col gap-4"
         v-for="(question, index) in test?.questions"
@@ -100,14 +102,20 @@
           @click="prevQuestion"
           :disabled="questionIndex === 0"
         />
-        <Button severity="secondary" rounded v-show="!isLastQuestion">
-          <span>{{ questionIndex + 1 }} / {{ test?.questions.length }}</span>
+        <Button
+          severity="secondary"
+          rounded
+          v-show="!isLastQuestion"
+          class="w-32"
+        >
+          <span>{{ questionIndex + 1 }} dari {{ test?.questions.length }}</span>
         </Button>
         <Button
           label="Selesai"
           severity="danger"
           rounded
           v-show="isLastQuestion"
+          class="w-32 font-semibold"
         />
         <Button
           label=">>"
@@ -122,10 +130,22 @@
 </template>
 
 <script lang="ts" setup>
+import { useScroll } from '@vueuse/core'
+
+const el = ref<HTMLElement | null>(null)
+const { y } = useScroll(el)
+
 const questionIndex = ref(0)
 const testStore = useTestStore()
-
 const test = computed(() => testStore.test)
+
+let interval: ReturnType<typeof setInterval>
+const elapsedTime = ref(0)
+const remaingTime = computed(() => {
+  const duration = Number(test.value?.duration)
+  const remaining = duration - elapsedTime.value
+  return formatTime(remaining)
+})
 
 const isLastQuestion = computed(
   () => questionIndex.value === (test.value?.questions.length ?? 0) - 1,
@@ -133,11 +153,28 @@ const isLastQuestion = computed(
 
 function nextQuestion() {
   questionIndex.value++
+  y.value = 0
 }
 
 function prevQuestion() {
   questionIndex.value--
+  y.value = 0
 }
+
+onMounted(async () => {
+  if (!testStore.test) {
+    await navigateTo('/')
+  }
+
+  if (interval) clearInterval(interval)
+  interval = setInterval(() => {
+    elapsedTime.value += 1000
+  }, 1000)
+})
+
+onUnmounted(() => {
+  clearInterval(interval)
+})
 </script>
 
 <style></style>
