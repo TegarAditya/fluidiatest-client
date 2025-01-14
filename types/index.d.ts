@@ -1,4 +1,18 @@
 declare global {
+  interface User {
+    public_id: string
+    name: string
+    email: string
+    school: string
+  }
+  interface TestMeta {
+    userId: string
+    testId: string
+    startedAt: number
+    finishedAt: number
+    answers?: Answer[]
+  }
+
   interface Test {
     id: string
     code: string
@@ -27,6 +41,12 @@ declare global {
     id: number
     label: string
     reason: string
+  }
+
+  interface Answer {
+    questionId: number
+    optionId: number
+    reasonId: number
   }
 }
 
