@@ -71,4 +71,8 @@ onMounted(async () => {
 })
 </script>
 
-<style></style>
+<style>
+.katex-html {
+  display: none;
+}
+</style>
