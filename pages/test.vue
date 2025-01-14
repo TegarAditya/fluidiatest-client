@@ -1,17 +1,22 @@
 <template>
-  <div class="relative min-h-[100dvh] w-screen bg-blue-100 select-none">
+  <div class="relative min-h-[100dvh] w-full bg-blue-100 select-none">
     <div class="sticky top-0 w-full h-16 z-20 bg-blue-400">
-      <div class="flex justify-center items-center h-full">
+      <div class="flex justify-between items-center h-full">
         <ClientOnly>
+          <div></div>
           <h1 class="text-white font-space_grotesk text-lg font-semibold">
             {{ remaingTime }}
           </h1>
+          <div></div>
         </ClientOnly>
       </div>
     </div>
-    <div ref="el" class="px-5 flex flex-col gap-7 py-10">
+    <div
+      ref="el"
+      class="px-5 flex flex-col items-center gap-7 py-10 min-h-[100dvh]"
+    >
       <div
-        class="flex flex-col gap-4"
+        class="flex flex-col gap-4 max-w-2xl"
         v-for="(question, index) in test?.questions"
         v-show="index === questionIndex"
       >
@@ -107,6 +112,7 @@
           rounded
           v-show="!isLastQuestion"
           class="w-32"
+          @click="visibleNavigation = true"
         >
           <span>{{ questionIndex + 1 }} dari {{ test?.questions.length }}</span>
         </Button>
@@ -126,6 +132,35 @@
         />
       </div>
     </div>
+    <Drawer
+      v-model:visible="visibleNavigation"
+      position="bottom"
+      style="height: auto"
+    >
+      <template #header>
+        <div class="flex items-center gap-2">
+          <span class="font-bold">Amy Elsner</span>
+        </div>
+      </template>
+      <div class="w-full">
+        <div class="grid grid-cols-5 gap-5">
+          <div
+            v-for="(question, index) in test?.questions"
+            :key="index"
+          >
+            <Button
+              :label="String(index + 1)"
+              class="w-8 h-8"
+              :class="{
+                'bg-blue-400 text-white': index === questionIndex,
+                'bg-white text-blue-400': index !== questionIndex,
+              }"
+              @click="questionIndex = index; visibleNavigation = false"
+            />
+          </div>
+        </div>
+      </div>
+    </Drawer>
   </div>
 </template>
 
@@ -134,6 +169,8 @@ import { useScroll } from '@vueuse/core'
 
 const el = ref<HTMLElement | null>(null)
 const { y } = useScroll(el)
+
+const visibleNavigation = ref(false)
 
 const questionIndex = ref(0)
 const testStore = useTestStore()
