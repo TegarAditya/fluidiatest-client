@@ -211,9 +211,9 @@ const confirmSubmit = () => {
           detail: 'Terimakasih, jawaban anda telah disubmit',
           life: 3000,
         })
-        // setTimeout(() => {
-        //   navigateTo('https://fluidiatest.id/student', { external: true })
-        // }, 3000)
+        setTimeout(() => {
+          navigateTo('https://fluidiatest.id/student', { external: true })
+        }, 3000)
       })
     },
   })
