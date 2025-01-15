@@ -47,7 +47,8 @@
                   :name="'question-' + question.id"
                   :value="option.id"
                   class="mt-2"
-                  @change="updateOption(question.id, option.id)"
+                  :checked="selectedOptions[question.id] === option.id"
+                  @change="updateAnswer(question.id, option.id, selectedReasons[question.id] ?? null)"
                 />
                 <label class="flex gap-3" :for="'option-' + option.id">
                   <div>
@@ -68,26 +69,27 @@
               <div class="grid grid-cols-1 gap-2">
                 <div
                   class="flex items-start gap-2 p-2 border rounded-xl bg-white h-full"
-                  v-for="(choice, choiceIndex) in question.reasons"
-                  :key="choiceIndex"
+                  v-for="(reason, reasonIndex) in question.reasons"
+                  :key="reasonIndex"
                 >
                   <input
                     type="radio"
-                    :id="`reason-${question.id}-${choiceIndex}`"
+                    :id="`reason-${question.id}-${reasonIndex}`"
                     :name="`reason-${question.id}`"
-                    :value="choiceIndex"
+                    :value="reasonIndex"
                     class="mt-2"
                     required
-                    @change="updateReason(question.id, choice.id)"
+                    :checked="selectedReasons[question.id] === reason.id"
+                    @change="updateAnswer(question.id, reason.id, selectedReasons[question.id] ?? null)"
                   />
                   <label
                     class="w-full overflow-x-auto flex items-start gap-2"
-                    :for="`reason-${question.id}-${choiceIndex}`"
+                    :for="`reason-${question.id}-${reasonIndex}`"
                   >
                     <div>
-                      <span>{{ choice.label }}.</span>
+                      <span>{{ reason.label }}.</span>
                     </div>
-                    <div v-html="choice.reason"></div>
+                    <div v-html="reason.reason"></div>
                   </label>
                 </div>
               </div>
@@ -167,8 +169,8 @@
 </template>
 
 <script lang="ts" setup>
-const confirm = useConfirm();
-const toast = useToast();
+const confirm = useConfirm()
+const toast = useToast()
 
 const el = ref<HTMLElement | null>(null)
 
@@ -187,22 +189,30 @@ const remaingTime = computed(() => {
 })
 
 const confirmSubmit = () => {
-    confirm.require({
-        message: 'Are you sure you want to proceed?',
-        header: 'Konfirmasi',
-        icon: 'pi pi-exclamation-triangle',
-        rejectProps: {
-            label: 'Kembali',
-            severity: 'secondary',
-        },
-        acceptProps: {
-            label: 'Submit'
-        },
-        accept: () => {
-            toast.add({ severity: 'info', summary: 'Submitted', detail: 'Terimakasih, jawaban anda telah disubmit', life: 3000 });
-        },
-    });
-};
+  confirm.require({
+    message: 'Are you sure you want to proceed?',
+    header: 'Konfirmasi',
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: {
+      label: 'Kembali',
+      severity: 'secondary',
+    },
+    acceptProps: {
+      label: 'Submit',
+    },
+    accept: () => {
+      toast.add({
+        severity: 'info',
+        summary: 'Submitted',
+        detail: 'Terimakasih, jawaban anda telah disubmit',
+        life: 3000,
+      })
+      setTimeout(() => {
+        navigateTo('https://fluidiatest.id/student', { external: true })
+      }, 3000)
+    },
+  })
+}
 
 const isLastQuestion = computed(
   () => questionIndex.value === (test.value?.questions.length ?? 0) - 1,
@@ -223,26 +233,34 @@ function navigateQuestion(index: number) {
   window.scrollTo(0, 0)
 }
 
-const updateOption = (questionId: number, optionId: number) => {
-  const existingAnswer = testStore.answers.find(
-    (a) => a.questionId === questionId,
-  )
-  const reasonId = existingAnswer?.reasonId ?? null
-  testStore.setAnswer(questionId, optionId, reasonId ?? 0)
+const selectedOptions = ref<Record<number, number>>({})
+const selectedReasons = ref<Record<number, number>>({})
+
+const initializeSelections = () => {
+  testStore.answers.forEach((answer) => {
+    selectedOptions.value[answer.questionId] = answer.optionId
+    selectedReasons.value[answer.questionId] = answer.reasonId
+  })
 }
 
-const updateReason = (questionId: number, reasonId: number) => {
-  const existingAnswer = testStore.answers.find(
-    (a) => a.questionId === questionId,
-  )
-  const optionId = existingAnswer?.optionId ?? null
-  testStore.setAnswer(questionId, optionId ?? 0, Number(reasonId))
+const updateAnswer = (questionId: number, optionId: number | null, reasonId: number | null) => {
+  if (optionId && reasonId) {
+    testStore.setAnswer(questionId, optionId, reasonId)
+  }
+  if (optionId) {
+    selectedOptions.value[questionId] = optionId
+  }
+  if (reasonId) {
+    selectedReasons.value[questionId] = reasonId
+  }
 }
 
 onMounted(async () => {
   if (!testStore.test) {
     await navigateTo('/')
   }
+
+  initializeSelections()
 
   if (interval) clearInterval(interval)
   interval = setInterval(() => {
