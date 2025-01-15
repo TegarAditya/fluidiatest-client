@@ -43,14 +43,17 @@
               >
                 <input
                   type="radio"
-                  :id="'option-' + option.id"
+                  :id="'option-' + question.id + '-' + option.id"
                   :name="'question-' + question.id"
                   :value="option.id"
                   class="mt-2"
                   :checked="selectedOptions[question.id] === option.id"
-                  @change="updateAnswer(question.id, option.id, selectedReasons[question.id] ?? null)"
+                  @change="updateAnswer(question.id, option.id, null)"
                 />
-                <label class="flex gap-3" :for="'option-' + option.id">
+                <label
+                  class="flex gap-3"
+                  :for="'option-' + question.id + '-' + option.id"
+                >
                   <div>
                     <span>{{ option.label }}.</span>
                   </div>
@@ -74,17 +77,17 @@
                 >
                   <input
                     type="radio"
-                    :id="`reason-${question.id}-${reasonIndex}`"
+                    :id="'reason-' + question.id + '-' + reason.id"
                     :name="`reason-${question.id}`"
-                    :value="reasonIndex"
+                    :value="reason.id"
                     class="mt-2"
                     required
                     :checked="selectedReasons[question.id] === reason.id"
-                    @change="updateAnswer(question.id, reason.id, selectedReasons[question.id] ?? null)"
+                    @change="updateAnswer(question.id, null, reason.id)"
                   />
                   <label
                     class="w-full overflow-x-auto flex items-start gap-2"
-                    :for="`reason-${question.id}-${reasonIndex}`"
+                    :for="'reason-' + question.id + '-' + reason.id"
                   >
                     <div>
                       <span>{{ reason.label }}.</span>
@@ -243,15 +246,26 @@ const initializeSelections = () => {
   })
 }
 
-const updateAnswer = (questionId: number, optionId: number | null, reasonId: number | null) => {
-  if (optionId && reasonId) {
-    testStore.setAnswer(questionId, optionId, reasonId)
-  }
-  if (optionId) {
+const updateAnswer = (
+  questionId: number,
+  optionId: number | null,
+  reasonId: number | null,
+) => {
+  if (optionId !== null) {
     selectedOptions.value[questionId] = optionId
+    testStore.setAnswer(
+      questionId,
+      optionId,
+      selectedReasons.value[questionId] ?? null,
+    )
   }
-  if (reasonId) {
+  if (reasonId !== null) {
     selectedReasons.value[questionId] = reasonId
+    testStore.setAnswer(
+      questionId,
+      selectedOptions.value[questionId] ?? null,
+      reasonId,
+    )
   }
 }
 
