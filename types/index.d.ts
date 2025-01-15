@@ -8,9 +8,10 @@ declare global {
   interface TestMeta {
     userId: string
     testId: string
-    startedAt: number
-    finishedAt: number
-    answers?: Answer[]
+    duration: number
+    startedAt: Date
+    closedAt: Date
+    finishedAt: Date
   }
 
   interface Test {

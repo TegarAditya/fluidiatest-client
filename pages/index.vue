@@ -11,7 +11,7 @@
             <div class="h-44 md:h-56 w-full aspect-video">
               <img
                 class="object-cover w-full h-full"
-                src="https://static.vecteezy.com/system/resources/previews/009/800/389/non_2x/back-to-school-doodle-a-large-set-of-elements-illustration-in-line-style-vector.jpg"
+                src="/assets/images/doodle.jpg"
                 alt="thumbnail"
               />
             </div>
@@ -55,7 +55,7 @@ const route = useRoute()
 const config = useRuntimeConfig()
 
 const testId = route.query.test_id as string
-const userId = route.query.user as string
+const userId = route.query.user_id as string
 
 const test = computed(() => testStore.test)
 
@@ -64,9 +64,22 @@ const fetchTest = async () => {
   return await data.json()
 }
 
+const fetchUser = async () => {
+  const data = await fetch(`${config.public.apiBaseUrl}/api/user/${userId}`)
+  return await data.json()
+}
+
 onMounted(async () => {
   if (testId) {
     testStore.setTest(await fetchTest())
+  }
+
+  if (userId) {
+    testStore.setUser(await fetchUser())
+  }
+
+  if (testStore.test?.id && testStore.user?.public_id) {
+    testStore.setMeta()
   }
 })
 </script>

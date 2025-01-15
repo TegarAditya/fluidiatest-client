@@ -1,5 +1,7 @@
 <template>
-  <div class="relative min-h-[100dvh] w-full bg-blue-100 select-none scroll-smooth">
+  <div
+    class="relative min-h-[100dvh] w-full bg-blue-100 select-none scroll-smooth"
+  >
     <ClientOnly>
       <div class="sticky top-0 w-full h-16 z-20 bg-blue-400">
         <div class="flex justify-between items-center h-full">
@@ -35,26 +37,23 @@
           <Panel header="Pilih jawabanmu" class="rounded-xl" toggleable>
             <div class="grid grid-cols-1 gap-2">
               <div
-                class="flex items-start gap-2 p-2 border rounded-xl bg-white"
-                v-for="(choice, choiceIndex) in question.options"
-                :key="choiceIndex"
+                v-for="option in question.options"
+                :key="option.id"
+                class="flex items-start gap-2"
               >
                 <input
                   type="radio"
-                  :id="`${question.id}-${choiceIndex}`"
-                  :name="`${question.id}`"
-                  :value="choiceIndex"
+                  :id="'option-' + option.id"
+                  :name="'question-' + question.id"
+                  :value="option.id"
                   class="mt-2"
-                  required
+                  @change="updateOption(question.id, option.id)"
                 />
-                <label
-                  class="w-full overflow-x-auto flex items-start gap-2"
-                  :for="`${question.id}-${choiceIndex}`"
-                >
+                <label class="flex gap-3" :for="'option-' + option.id">
                   <div>
-                    <span>{{ choice.label }}.</span>
+                    <span>{{ option.label }}.</span>
                   </div>
-                  <div v-html="choice.option"></div>
+                  <div v-html="option.option"></div>
                 </label>
               </div>
             </div>
@@ -79,6 +78,7 @@
                     :value="choiceIndex"
                     class="mt-2"
                     required
+                    @change="updateReason(question.id, choice.id)"
                   />
                   <label
                     class="w-full overflow-x-auto flex items-start gap-2"
@@ -153,10 +153,7 @@
                   'bg-blue-400 text-white': index === questionIndex,
                   'bg-white text-blue-400': index !== questionIndex,
                 }"
-                @click="
-                  navigateQuestion(index),
-                  visibleNavigation = false
-                "
+                @click="navigateQuestion(index), (visibleNavigation = false)"
               />
             </div>
           </div>
@@ -203,6 +200,22 @@ function prevQuestion() {
 function navigateQuestion(index: number) {
   questionIndex.value = index
   window.scrollTo(0, 0)
+}
+
+const updateOption = (questionId: number, optionId: number) => {
+  const existingAnswer = testStore.answers.find(
+    (a) => a.questionId === questionId,
+  )
+  const reasonId = existingAnswer?.reasonId ?? null
+  testStore.setAnswer(questionId, optionId, reasonId ?? 0)
+}
+
+const updateReason = (questionId: number, reasonId: number) => {
+  const existingAnswer = testStore.answers.find(
+    (a) => a.questionId === questionId,
+  )
+  const optionId = existingAnswer?.optionId ?? null
+  testStore.setAnswer(questionId, optionId ?? 0, Number(reasonId))
 }
 
 onMounted(async () => {
