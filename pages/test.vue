@@ -204,17 +204,40 @@ const confirmSubmit = () => {
       label: 'Submit',
     },
     accept: () => {
-      toast.add({
-        severity: 'info',
-        summary: 'Submitted',
-        detail: 'Terimakasih, jawaban anda telah disubmit',
-        life: 3000,
+      submit().then(() => {
+        toast.add({
+          severity: 'info',
+          summary: 'Submitted',
+          detail: 'Terimakasih, jawaban anda telah disubmit',
+          life: 3000,
+        })
+        // setTimeout(() => {
+        //   navigateTo('https://fluidiatest.id/student', { external: true })
+        // }, 3000)
       })
-      setTimeout(() => {
-        navigateTo('https://fluidiatest.id/student', { external: true })
-      }, 3000)
     },
   })
+}
+
+const submit = async () => {
+  const data = {
+    meta: testStore.meta,
+    answers: testStore.answers,
+  }
+
+  const response = await fetch(`https://content.bupin.id/api/json-fluids`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      data: {
+        data,
+      },
+    }),
+  })
+
+  return response
 }
 
 const isLastQuestion = computed(
