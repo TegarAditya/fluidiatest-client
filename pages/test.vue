@@ -123,6 +123,7 @@
             rounded
             v-show="isLastQuestion"
             class="w-32 font-semibold"
+            @click="confirmSubmit"
           />
           <Button
             label=">>"
@@ -159,15 +160,17 @@
           </div>
         </div>
       </Drawer>
+      <Toast />
+      <ConfirmDialog></ConfirmDialog>
     </ClientOnly>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useScroll } from '@vueuse/core'
+const confirm = useConfirm();
+const toast = useToast();
 
 const el = ref<HTMLElement | null>(null)
-const { y } = useScroll(el)
 
 const visibleNavigation = ref(false)
 
@@ -182,6 +185,24 @@ const remaingTime = computed(() => {
   const remaining = duration - elapsedTime.value
   return formatTime(remaining)
 })
+
+const confirmSubmit = () => {
+    confirm.require({
+        message: 'Are you sure you want to proceed?',
+        header: 'Konfirmasi',
+        icon: 'pi pi-exclamation-triangle',
+        rejectProps: {
+            label: 'Kembali',
+            severity: 'secondary',
+        },
+        acceptProps: {
+            label: 'Submit'
+        },
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Submitted', detail: 'Terimakasih, jawaban anda telah disubmit', life: 3000 });
+        },
+    });
+};
 
 const isLastQuestion = computed(
   () => questionIndex.value === (test.value?.questions.length ?? 0) - 1,
