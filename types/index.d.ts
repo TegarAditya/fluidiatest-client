@@ -49,6 +49,41 @@ declare global {
     optionId: number
     reasonId: number
   }
+
+  export interface ExamResultResponse {
+    id: string
+    createdAt: Date
+    updatedAt: Date
+    user: UserExamresult
+    responses: ExamResponse[]
+  }
+
+  export interface ExamResponse {
+    questionCode: string
+    question: string
+    optionLabel: OptionLabel | null
+    optionText: null | string
+    optionCorrect: boolean
+    reasonLabel: OnLabel | null
+    reasonText: null | string
+    reasonCorrect: boolean
+    points: number
+    feedback: string
+  }
+
+  export enum OptionLabel {
+    A = 'A',
+    B = 'B',
+    C = 'C',
+    D = 'D',
+    E = 'E',
+  }
+
+  export interface UserExamResult {
+    id: string
+    name: string
+    schools: string
+  }
 }
 
 export {}
