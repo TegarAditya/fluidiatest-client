@@ -35,11 +35,12 @@
             </div>
           </template>
           <template #footer>
-            <div class="flex gap-4 mt-1">
+            <div class="flex flex-col gap-4 mt-1">
               <Button
-                label="Kerjakan"
+                :label="isAttemptExist ? 'Lihat Hasil' : 'Kerjakan'"
                 class="w-full font-bold text-white"
-                @click="navigateTo('test')"
+                :severity="isAttemptExist ? 'success' : 'primary'"
+                @click="isAttemptExist ? navigateToResult() : navigateTo(`/test`)"
               />
             </div>
           </template>
@@ -59,6 +60,13 @@ const userId = route.query.user_id as string
 
 const test = computed(() => testStore.test)
 
+const isAttemptExist = ref(false)
+
+const fetchAttempt = async () => {
+  const data = await fetch(`${config.public.apiBaseUrl}/api/result?user_id=${testStore.meta?.userId}&exam_id=${testStore.meta?.testId}`)
+  return await data.json()
+}
+
 const fetchTest = async () => {
   const data = await fetch(`${config.public.apiBaseUrl}/api/test/${testId}`)
   return await data.json()
@@ -67,6 +75,10 @@ const fetchTest = async () => {
 const fetchUser = async () => {
   const data = await fetch(`${config.public.apiBaseUrl}/api/user/${userId}`)
   return await data.json()
+}
+
+const navigateToResult = async () => {
+  await navigateTo(`/result/${testStore.user?.public_id}/${testStore.test?.id}`)
 }
 
 onMounted(async () => {
@@ -80,6 +92,12 @@ onMounted(async () => {
 
   if (testStore.test?.id && testStore.user?.public_id) {
     testStore.setMeta()
+  }
+
+  const existingAttempt = await fetchAttempt()
+
+  if (existingAttempt) {
+    isAttemptExist.value = true
   }
 })
 </script>
