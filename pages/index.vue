@@ -62,7 +62,7 @@ const test = computed(() => testStore.test)
 
 const isAttemptExist = ref(false)
 
-const fetchAttempt = async () => {
+const fetchAttempt = async () : Promise<ExamResultResponse> => {
   const data = await fetch(`${config.public.apiBaseUrl}/api/result?user_id=${testStore.meta?.userId}&exam_id=${testStore.meta?.testId}`)
   return await data.json()
 }
@@ -96,7 +96,7 @@ onMounted(async () => {
 
   const existingAttempt = await fetchAttempt()
 
-  if (existingAttempt) {
+  if (existingAttempt.id) {
     isAttemptExist.value = true
   }
 })
