@@ -174,6 +174,7 @@
 <script lang="ts" setup>
 const confirm = useConfirm()
 const toast = useToast()
+const config = useRuntimeConfig()
 
 const el = ref<HTMLElement | null>(null)
 
@@ -182,6 +183,7 @@ const visibleNavigation = ref(false)
 const questionIndex = ref(0)
 const testStore = useTestStore()
 const test = computed(() => testStore.test)
+const user = computed(() => testStore.user)
 
 let interval: ReturnType<typeof setInterval>
 const elapsedTime = ref(0)
@@ -204,37 +206,54 @@ const confirmSubmit = () => {
       label: 'Submit',
     },
     accept: () => {
-      submit().then(() => {
-        toast.add({
-          severity: 'info',
-          summary: 'Submitted',
-          detail: 'Terimakasih, jawaban anda telah disubmit',
-          life: 3000,
+      submit()
+        .then((response) => {
+          if (response.status === 409) {
+            toast.add({
+              severity: 'warn',
+              summary: 'Error',
+              detail: 'Jawaban sudah pernah disubmit sebelumnya',
+              life: 3000,
+            })
+          } else if (response.status !== 200 && response.status !== 201) {
+            toast.add({
+              severity: 'info',
+              summary: 'Submitted',
+              detail: 'Terimakasih, jawaban anda telah disubmit',
+              life: 3000,
+            })
+          }
+
+          setTimeout(() => {
+            navigateTo(`/result/${user.value?.public_id}/${test.value?.id}`)
+          }, 3000)
         })
-        setTimeout(() => {
-          navigateTo('https://fluidiatest.id/student', { external: true })
-        }, 3000)
-      })
+        .catch(() => {
+          toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Terjadi kesalahan saat submit jawaban',
+            life: 3000,
+          })
+        })
     },
   })
 }
 
 const submit = async () => {
   const data = {
-    meta: testStore.meta,
+    userId: user.value?.public_id,
+    testId: test.value?.id,
+    createdAt: new Date().toISOString(),
     answers: testStore.answers,
   }
 
-  const response = await fetch(`https://content.bupin.id/api/json-fluids`, {
+  const response = await fetch(`${config.public.apiBaseUrl}/api/test/attempt`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      data: {
-        data,
-      },
-    }),
+    body: JSON.stringify(data),
   })
 
   return response
