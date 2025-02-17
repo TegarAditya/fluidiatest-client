@@ -26,21 +26,48 @@
               <p class="text-sm">
                 Durasi: {{ formatDuration(Number(test?.duration)) }},
               </p>
-              <p class="text-sm">Jumlah: {{ test?.questions.length }} soal</p>
+              <p class="text-sm">Jumlah: {{ test?.questions.length }} soal,</p>
+              <p class="text-sm" v-if="typeof isAttemptExist === 'boolean'">
+                {{ isAttemptExist ? 'Sudah submit' : 'Belum submit' }}
+              </p>
             </div>
           </template>
           <template #content>
             <div class="border rounded-md p-4 bg-gray-100">
-              <div class="text-sm prose" v-html="test?.description"></div>
+              <div
+                class="text-sm prose prose-headings:font-space_grotesk prose-headings:font-semibold"
+                v-html="test?.description"
+              ></div>
             </div>
           </template>
           <template #footer>
             <div class="flex flex-col gap-4 mt-1">
               <Button
-                :label="isAttemptExist ? 'Lihat Hasil' : 'Kerjakan'"
+                label="Kerjakan"
                 class="w-full font-bold text-white"
-                :severity="isAttemptExist ? 'success' : 'primary'"
-                @click="isAttemptExist ? navigateToResult() : navigateTo(`/test`)"
+                @click="navigateTo(`/test`)"
+                v-if="typeof isAttemptExist === 'boolean' && !isAttemptExist"
+              />
+              <Button
+                label="Lihat Hasil"
+                class="w-full font-bold text-white"
+                severity="success"
+                @click="navigateToResult()"
+                v-else-if="
+                  typeof isAttemptExist === 'boolean' &&
+                  isAttemptExist &&
+                  testStore.test?.isMultiTier
+                "
+              />
+              <Button
+                label="Kembali ke Dashboard"
+                class="w-full font-bold"
+                severity="secondary"
+                @click="
+                  navigateTo('https://fluidiatest.id/student', {
+                    external: true,
+                  })
+                "
               />
             </div>
           </template>
@@ -60,10 +87,12 @@ const userId = route.query.user_id as string
 
 const test = computed(() => testStore.test)
 
-const isAttemptExist = ref(false)
+const isAttemptExist = ref<boolean | null>(null)
 
-const fetchAttempt = async () : Promise<ExamResultResponse> => {
-  const data = await fetch(`${config.public.apiBaseUrl}/api/result?user_id=${testStore.meta?.userId}&exam_id=${testStore.meta?.testId}`)
+const fetchAttempt = async (): Promise<ExamResultResponse> => {
+  const data = await fetch(
+    `${config.public.apiBaseUrl}/api/result?user_id=${testStore.meta?.userId}&exam_id=${testStore.meta?.testId}`,
+  )
   return await data.json()
 }
 
@@ -98,6 +127,8 @@ onMounted(async () => {
 
   if (existingAttempt.id) {
     isAttemptExist.value = true
+  } else {
+    isAttemptExist.value = false
   }
 })
 </script>
