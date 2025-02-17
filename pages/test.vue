@@ -225,7 +225,13 @@ const confirmSubmit = () => {
           }
 
           setTimeout(() => {
-            navigateTo(`/result/${user.value?.public_id}/${test.value?.id}`)
+            if (test.value?.isMultiTier) {
+              navigateTo(`/result/${user.value?.public_id}/${test.value?.id}`)
+            } else {
+              navigateTo('https://fluidiatest.id/student', {
+                external: true,
+              })
+            }
           }, 3000)
         })
         .catch(() => {
