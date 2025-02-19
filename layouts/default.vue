@@ -6,4 +6,8 @@
 
 <script lang="ts" setup></script>
 
-<style></style>
+<style>
+.katex-html {
+  display: none;
+}
+</style>
