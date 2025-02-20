@@ -215,13 +215,15 @@ const confirmSubmit = () => {
               detail: 'Jawaban sudah pernah disubmit sebelumnya',
               life: 3000,
             })
-          } else if (response.status !== 200 && response.status !== 201) {
+          } else if (response.status === 201) {
             toast.add({
               severity: 'info',
               summary: 'Submitted',
               detail: 'Terimakasih, jawaban anda telah disubmit',
               life: 3000,
             })
+
+            testStore.clearAnswers()
           }
 
           setTimeout(() => {
