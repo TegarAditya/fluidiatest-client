@@ -130,6 +130,8 @@ onMounted(async () => {
   } else {
     isAttemptExist.value = false
   }
+
+  testStore.clearAnswers()
 })
 </script>
 
