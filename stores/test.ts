@@ -46,6 +46,9 @@ export const useTestStore = defineStore('test', {
         this.answers.push({ questionId, optionId, reasonId })
       }
     },
+    clearMeta() {
+      this.meta = undefined
+    },
     clearAnswers() {
       this.answers = []
     },
