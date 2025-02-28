@@ -119,9 +119,7 @@ onMounted(async () => {
     testStore.setUser(await fetchUser())
   }
 
-  if (testStore.test?.id && testStore.user?.public_id) {
-    testStore.setMeta()
-  }
+  testStore.clearMeta()
 
   const existingAttempt = await fetchAttempt()
 
