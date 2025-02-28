@@ -184,11 +184,17 @@ const questionIndex = ref(0)
 const testStore = useTestStore()
 const test = computed(() => testStore.test)
 const user = computed(() => testStore.user)
+const meta = computed(() => testStore.meta)
+
+const timeToTargetDifference = (target: Date): number => {
+  const now = new Date()
+  return target.getTime() - now.getTime()
+}
 
 let interval: ReturnType<typeof setInterval>
 const elapsedTime = ref(0)
 const remaingTime = computed(() => {
-  const duration = Number(test.value?.duration)
+  const duration = timeToTargetDifference(new Date(meta.value?.closedAt ?? ''))
   const remaining = duration - elapsedTime.value
   return formatTime(remaining)
 })
