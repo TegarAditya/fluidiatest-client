@@ -186,6 +186,10 @@ const test = computed(() => testStore.test)
 const user = computed(() => testStore.user)
 const meta = computed(() => testStore.meta)
 
+if (testStore.test?.id && testStore.user?.public_id && !testStore.meta) {
+  testStore.setMeta()
+}
+
 const timeToTargetDifference = (target: Date): number => {
   const now = new Date()
   return target.getTime() - now.getTime()
