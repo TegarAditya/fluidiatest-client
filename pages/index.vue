@@ -91,7 +91,7 @@ const isAttemptExist = ref<boolean | null>(null)
 
 const fetchAttempt = async (): Promise<ExamResultResponse> => {
   const data = await fetch(
-    `${config.public.apiBaseUrl}/api/result?user_id=${testStore.meta?.userId}&exam_id=${testStore.meta?.testId}`,
+    `${config.public.apiBaseUrl}/api/result?user_id=${testStore.user?.public_id}&exam_id=${testStore.test?.id}`,
   )
   return await data.json()
 }
