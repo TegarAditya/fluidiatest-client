@@ -10,20 +10,42 @@
           </h1>
         </div>
       </div>
+      <div
+        class="flex flex-col gap-5 items-center justify-center px-5 py-3 w-full mx-auto max-w-screen-lg"
+      >
+        <Card class="w-full">
+          <template #content>
+            <div class="flex flex-col gap-2">
+              <p class="font-space_grotesk text-lg flex justify-between">
+                Total Poin
+                <span
+                  :class="`${
+                    totalPoints === examResult.responses.length * 4
+                      ? 'text-green-500'
+                      : 'text-red-500'
+                  } font-semibold`"
+                  >({{ totalPoints }}/{{
+                    examResult.responses.length * 4
+                  }})</span
+                >
+              </p>
+            </div>
+          </template>
+        </Card>
+      </div>
       <div class="flex flex-col gap-5 items-center justify-center px-5 py-5">
         <div
           v-for="(result, index) in examResult.responses"
           :key="result.questionCode"
           class="max-w-screen-lg"
         >
-          <div class="flex justify-between items-center">
-            <div>
-              <h2 class="text-lg font-semibold font-space_grotesk">
-                Soal {{ index + 1 }} ({{ result.questionCode }})
-              </h2>
-              <span class="font-thin text-muted-color"
-                >poin yang didapat: {{ result.points }}</span
-              >
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-semibold font-space_grotesk">
+              Soal {{ index + 1 }} ({{ result.questionCode }})
+            </h2>
+            <div class="font-thin border px-2 py-1 rounded-md">
+              Poin yang didapat:
+              <span class="font-semibold font-space_grotesk">{{ result.points }}</span>
             </div>
           </div>
           <div
@@ -44,12 +66,16 @@
                     >
                   </p>
                   <div class="flex gap-1" v-if="result.optionLabel">
-                    <p :class="`${result.optionCorrect ? '' : 'text-red-500'} prose font-semibold`">
+                    <p
+                      :class="`${
+                        result.optionCorrect ? 'text-green-500' : 'text-red-500'
+                      } prose font-semibold`"
+                    >
                       {{ result.optionLabel }}.
                     </p>
                     <div
                       :class="`${
-                        result.optionCorrect ? '' : 'text-red-500'
+                        result.optionCorrect ? 'text-green-500' : 'text-red-500'
                       } prose`"
                       v-html="result.optionText"
                     ></div>
@@ -58,13 +84,17 @@
                     Alasan
                     <span
                       :class="`${
-                        result.optionCorrect ? 'text-green-500' : 'text-red-500'
+                        result.reasonCorrect ? 'text-green-500' : 'text-red-500'
                       } font-semibold`"
                       >({{ result.reasonCorrect ? 'Benar' : 'Salah' }})</span
                     >
                   </p>
                   <div class="flex gap-1" v-if="result.reasonLabel">
-                    <p :class="`${result.reasonCorrect ? '' : 'text-red-500'} prose font-semibold`">
+                    <p
+                      :class="`${
+                        result.reasonCorrect ? '' : 'text-red-500'
+                      } prose font-semibold`"
+                    >
                       {{ result.reasonLabel }}.
                     </p>
                     <div
@@ -104,6 +134,13 @@ const examId = route.params.exam_id as string
 
 const examResult = ref<ExamResultResponse | null>(null)
 const isError = ref(false)
+
+const totalPoints = computed(() => {
+  if (!examResult.value) return 0
+  return examResult.value.responses.reduce((acc, result) => {
+    return acc + (result.points || 0)
+  }, 0)
+})
 
 onMounted(async () => {
   try {
